@@ -10,7 +10,7 @@ namespace RedisMigrate
         {
             try
             {
-                var config = RedisMigrateConfiguration.CreateForDebug();
+                var config = RedisMigrateConfiguration.Create();
                 DisplayHeader(config);
 
                 var processor = new RedisMigrateProcessor(config);
