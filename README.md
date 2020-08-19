@@ -7,7 +7,7 @@ A simple worker to copy Redis values to another Redis filtered and with prefix;
 ## Running with Docker
 
 ```
-docker run --name redis-migrate -d \
+docker run --name redis-migrate \
     -e MaxThreads=1000 \
     -e OriginConnectionString="localhost:6379,password=RedisAuth,defaultDatabase=0,syncTimeout=2000,connectTimeout=2000,abortConnect=false" \
     -e OriginDatabase=0 \

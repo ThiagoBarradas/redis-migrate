@@ -46,8 +46,8 @@ namespace RedisMigrate.Models
                 OriginPopulatePrefix = Environment.GetEnvironmentVariable("OriginPopulatePrefix"),
                 DestinationConnectionString = Environment.GetEnvironmentVariable("DestinationConnectionString"),
                 DestinationDatabase = int.Parse(Environment.GetEnvironmentVariable("DestinationDatabase")),
-                DestinationKeyPrefix = Environment.GetEnvironmentVariable("DestinationPrefix"),
-                DestinationKeyReplaceForEmpty = Environment.GetEnvironmentVariable("DestinationReplaceForEmpty"),
+                DestinationKeyPrefix = Environment.GetEnvironmentVariable("DestinationKeyPrefix"),
+                DestinationKeyReplaceForEmpty = Environment.GetEnvironmentVariable("DestinationKeyReplaceForEmpty"),
                 DestinationReplace = bool.Parse(Environment.GetEnvironmentVariable("DestinationReplace"))
             };
 
