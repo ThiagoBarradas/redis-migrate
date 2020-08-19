@@ -42,7 +42,7 @@ namespace RedisMigrate
 
                     var ttl = TimeSpan.FromMinutes(30);
 
-                    Parallel.For(0, this.Configuration.OriginPopulateQuantity, (i) =>
+                    Parallel.For(0, this.Configuration.OriginPopulateQuantity, new ParallelOptions { MaxDegreeOfParallelism = this.Configuration.MaxThreads }, (i) =>
                     {
                         Logger.LogLineWithLevel("INFO", $"Writing test data {this.Configuration.OriginPopulatePrefix}key_x{i}");
 
