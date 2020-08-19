@@ -31,8 +31,9 @@ jobs:
     inputs:
       artifact: $(project_name)
   - script: |
-      mkdir -p $(project_name)/bin/Release
-      cp -r $(Pipeline.Workspace)/$(Build.SourceBranchName) $(project_name)/bin/Release/netcoreapp$(netcore_version)
+      mkdir bin 
+      cp -r $(Pipeline.Workspace)/bin/* bin
+      ls -la bin
     displayName: Prepare Files
   - task: replacetokens@3
     inputs:
