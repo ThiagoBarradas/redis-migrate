@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedisMigrate", "RedisMigrate\RedisMigrate.csproj", "{6E18E8D3-7A01-490F-9EFD-D6BBC8CCD8E1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5642EA69-5AE0-4D95-94E7-CC8759712F0A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "devops", "devops", "{BCC117CB-0F4A-43F0-B779-F04AA58A8918}"
+	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yml = azure-pipelines.yml
+		Dockerfile = Dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{C8120AB8-A1F0-4BF0-A55C-8BD9AB897EAC}"
+	ProjectSection(SolutionItems) = preProject
+		.github\CONTRIBUTING.md = .github\CONTRIBUTING.md
+		.github\ISSUE_TEMPLATE.md = .github\ISSUE_TEMPLATE.md
+		LICENSE = LICENSE
+		.github\PULL_REQUEST_TEMPLATE.md = .github\PULL_REQUEST_TEMPLATE.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "git", "git", "{681514FC-D265-4315-AB7F-95072F3B5243}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6E18E8D3-7A01-490F-9EFD-D6BBC8CCD8E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E18E8D3-7A01-490F-9EFD-D6BBC8CCD8E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E18E8D3-7A01-490F-9EFD-D6BBC8CCD8E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E18E8D3-7A01-490F-9EFD-D6BBC8CCD8E1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BCC117CB-0F4A-43F0-B779-F04AA58A8918} = {5642EA69-5AE0-4D95-94E7-CC8759712F0A}
+		{C8120AB8-A1F0-4BF0-A55C-8BD9AB897EAC} = {5642EA69-5AE0-4D95-94E7-CC8759712F0A}
+		{681514FC-D265-4315-AB7F-95072F3B5243} = {5642EA69-5AE0-4D95-94E7-CC8759712F0A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CBED0BF0-0451-4F36-884A-A3B04ADA482E}
+	EndGlobalSection
+EndGlobal
