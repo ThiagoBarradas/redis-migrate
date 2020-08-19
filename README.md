@@ -23,6 +23,12 @@ docker run --name redis-migrate \
     thiagobarradas/redis-migrate:latest
 ```
 
+## Testing local
+
+Clone this project and, in your path, execute `docker-compose up -d` to run two redis, like sample connection string.
+
+Set `OriginPopulateEnabled=true` and run previously command.
+
 ## Configuration
 
 Set environment variables to setup RedisMigrate:
