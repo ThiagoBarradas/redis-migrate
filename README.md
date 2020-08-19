@@ -1,3 +1,5 @@
+[![Build Status](https://barradas.visualstudio.com/Contributions/_apis/build/status/DockerImage/RedisMigrate%20Worker?branchName=master)](https://barradas.visualstudio.com/Contributions/_build/latest?definitionId=22&branchName=master)
+
 # RedisMigrate
  
 A simple worker to copy Redis values to another Redis filtered and with prefix;

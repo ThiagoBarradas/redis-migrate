@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/dotnet/core/runtime:3.1
 ENV CURRENT_VERSION="__[Version]__"
 
 # Args
-ARG distFolder=RedisMigrate/bin/Release/3.1
+ARG distFolder=bin
 ARG appFile=RedisMigrate.dll
  
 # Copy files to /app
