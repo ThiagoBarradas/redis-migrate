@@ -8,18 +8,18 @@ A simple worker to copy Redis values to another Redis filtered and with prefix;
 
 ```
 docker run --name redis-migrate -d \
-    -e MaxThreads=1000
+    -e MaxThreads=1000 \
     -e OriginConnectionString="localhost:6379,password=RedisAuth,defaultDatabase=0,syncTimeout=2000,connectTimeout=2000,abortConnect=false" \
     -e OriginDatabase=0 \
     -e OriginFilter="*" \
     -e OriginPopulateEnabled=false \
-    -e OriginPopulateQuantity=1000 \
+    -e OriginPopulateQuantity=10000 \
     -e OriginPopulatePrefix="some-test:" \
     -e DestinationConnectionString="localhost:6377,password=RedisAuth,defaultDatabase=0,syncTimeout=2000,connectTimeout=2000,abortConnect=false" \
     -e DestinationDatabase=0 \
     -e DestinationKeyPrefix="migrated:" \
-    -e DestinationKeyReplaceForEmpty="remove-from-key" \
-    -e DestinationReplace=true
+    -e DestinationKeyReplaceForEmpty="some-test:" \
+    -e DestinationReplace=true \
     thiagobarradas/redis-migrate:latest
 ```
 
@@ -44,11 +44,11 @@ Set environment variables to setup RedisMigrate:
 
 ## How can I contribute?
 
-Please, refer to [CONTRIBUTING](.github/CONTRIBUTING.md)
+Please, refer to [CONTRIBUTING](https://github.com/ThiagoBarradas/redis-migrate/edit/master/.github/CONTRIBUTING.md)
 
 ## Found something strange or need a new feature?
 
-Open a new Issue following our issue template [ISSUE TEMPLATE](.github/ISSUE_TEMPLATE.md)
+Open a new Issue following our issue template [ISSUE TEMPLATE](https://github.com/ThiagoBarradas/redis-migrate/edit/master/.github/ISSUE_TEMPLATE.md)
 
 ## Did you like it? Please, make a donate :)
 
