@@ -41,12 +41,12 @@ namespace RedisMigrate
 
                     var ttl = TimeSpan.FromMinutes(30);
 
-                    for (int i = 0; i < this.Configuration.OriginPopulateQuantity; i++)
+                    Parallel.For(0, this.Configuration.OriginPopulateQuantity, (i) =>
                     {
                         Logger.LogLineWithLevel("INFO", $"Writing test data {this.Configuration.OriginPopulatePrefix}key_x{i}");
-                        originDb.StringSet($"{this.Configuration.OriginPopulatePrefix}key_x{i}", $"test {i}", ttl); ;
-                    }
-
+                        originDb.StringSet($"{this.Configuration.OriginPopulatePrefix}key_x{i}", $"test {i}", ttl);
+                    });
+                    
                     Logger.LogLineWithLevel("INFO", "Populate finished!");
                 }
 
