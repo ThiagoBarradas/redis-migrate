@@ -33,6 +33,7 @@ namespace RedisMigrate
 
                 if (this.Configuration.OriginPopulateEnabled)
                 {
+                    Logger.LogLineWithLevel("INFO", "Populate {0} with Prefix {1}", this.Configuration.OriginPopulateQuantity, this.Configuration.OriginPopulatePrefix);
                     if (this.Configuration.OriginPopulatePrefix == null)
                     {
                         this.Configuration.OriginPopulatePrefix = "";
@@ -42,8 +43,11 @@ namespace RedisMigrate
 
                     for (int i = 0; i < this.Configuration.OriginPopulateQuantity; i++)
                     {
+                        Logger.LogLineWithLevel("INFO", $"Writing test data {this.Configuration.OriginPopulatePrefix}key_x{i}");
                         originDb.StringSet($"{this.Configuration.OriginPopulatePrefix}key_x{i}", $"test {i}", ttl); ;
                     }
+
+                    Logger.LogLineWithLevel("INFO", "Populate finished!");
                 }
 
                 var cursor = 0;
