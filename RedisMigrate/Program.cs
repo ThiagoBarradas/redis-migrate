@@ -11,11 +11,13 @@ namespace RedisMigrate
             try
             {
                 var config = RedisMigrateConfiguration.Create();
+                //var config = RedisMigrateConfiguration.CreateForDebug();
+             
                 DisplayHeader(config);
 
                 var processor = new RedisMigrateProcessor(config);
 
-                processor.Execute();
+                processor.ExecuteAsync().GetAwaiter().GetResult();
 
                 processor.Dispose();
             }

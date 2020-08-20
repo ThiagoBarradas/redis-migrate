@@ -2,7 +2,9 @@
 using RedisMigrate.Models;
 using StackExchange.Redis;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static RedisMigrate.Program;
@@ -25,7 +27,7 @@ namespace RedisMigrate
             ThreadPool.SetMinThreads(this.Configuration.MaxThreads, this.Configuration.MaxThreads);
         }
 
-        public void Execute()
+        public async Task ExecuteAsync()
         {
             try
             {
@@ -40,22 +42,30 @@ namespace RedisMigrate
                         this.Configuration.OriginPopulatePrefix = "";
                     }
 
-                    var ttl = TimeSpan.FromMinutes(30);
-
-                    Parallel.For(0, this.Configuration.OriginPopulateQuantity, new ParallelOptions { MaxDegreeOfParallelism = this.Configuration.MaxThreads }, (i) =>
+                    var batchSize = 5000;
+                    for (int i = 0; i < this.Configuration.OriginPopulateQuantity; i = i + batchSize)
                     {
-                        Logger.LogLineWithLevel("INFO", $"Writing test data {this.Configuration.OriginPopulatePrefix}key_x{i}");
+                        var buffer = new List<KeyValuePair<RedisKey, RedisValue>>();
+                        for (int j = i; j < (i + batchSize) && j < this.Configuration.OriginPopulateQuantity; j++)
+                        {
+                            buffer.Add(new KeyValuePair<RedisKey, RedisValue>
+                            (
+                                $"{this.Configuration.OriginPopulatePrefix}key_x{j}", $"test {j}"
+                            ));
+                        }
 
-                        Policy
+                        Logger.LogLineWithLevel("INFO", $"Writing bulk test data - {buffer.Count}/{this.Configuration.OriginPopulateQuantity}");
+
+                        await Policy
                             .Handle<RedisTimeoutException>()
                             .RetryAsync(10, (err, i) => Task.Delay(50))
-                            .ExecuteAsync(() =>
+                            .ExecuteAsync(async () =>
                             {
-                                originDb.StringSet($"{this.Configuration.OriginPopulatePrefix}key_x{i}", $"test {i}", ttl);
+                                await originDb.StringSetAsync(buffer.ToArray(), When.Always);
                                 return Task.CompletedTask;
                             });
-                    });
-                    
+                    }
+
                     Logger.LogLineWithLevel("INFO", "Populate finished!");
                 }
 
@@ -67,14 +77,11 @@ namespace RedisMigrate
                 stopwatch.Start();
                 do
                 {
-                    RedisResult result = null;
-
-                    Policy.Handle<RedisTimeoutException>()
+                    RedisResult result = await Policy.Handle<RedisTimeoutException>()
                           .RetryAsync(10)
-                          .ExecuteAsync(() =>
+                          .ExecuteAsync<RedisResult>(async () =>
                           {
-                              result = originDb.Execute("scan", cursor, "MATCH", this.Configuration.OriginFilter, "COUNT", this.Configuration.MaxThreads);
-                              return Task.CompletedTask;
+                              return await originDb.ExecuteAsync("scan", cursor, "MATCH", this.Configuration.OriginFilter, "COUNT", this.Configuration.MaxThreads);
                           });
 
                     var results = (RedisResult[])result;
@@ -82,7 +89,7 @@ namespace RedisMigrate
                     cursor = (int)results[0];
 
                     var items = (string[])results[1];
-                    Parallel.ForEach(items, new ParallelOptions { MaxDegreeOfParallelism = this.Configuration.MaxThreads }, (key) =>
+                    Parallel.ForEach(items, new ParallelOptions { MaxDegreeOfParallelism = this.Configuration.MaxThreads }, async (key) =>
                     {
                         var newKey = key;
                         if (!string.IsNullOrWhiteSpace(this.Configuration.DestinationKeyReplaceForEmpty))
@@ -95,25 +102,32 @@ namespace RedisMigrate
                             newKey = $"{this.Configuration.DestinationKeyPrefix}{newKey}";
                         }
 
-                        string value = null;
-                        TimeSpan? ttl = null;
-                        bool resultNew = false;
-
                         var flags = (this.Configuration.DestinationReplace)
                             ? When.Always
                             : When.NotExists;
 
-                        Policy.Handle<RedisTimeoutException>()
+                        var value = await Policy.Handle<RedisTimeoutException>()
                               .RetryAsync(10)
-                              .ExecuteAsync(() =>
+                              .ExecuteAsync<string>(async () =>
                               {
-                                  value = originDb.StringGet(key);
-                                  ttl = originDb.KeyTimeToLive(key);
-                                  resultNew = destinationDb.StringSet(newKey, value, ttl, flags);
-                                  return Task.CompletedTask;
+                                  return await originDb.StringGetAsync(key);
                               });
 
-                        Logger.LogLineWithLevel("INFO", "Origin Key: {0} \t Destination Key {1} \t Result: {2}", key, newKey, resultNew);
+                        var ttl = await Policy.Handle<RedisTimeoutException>()
+                              .RetryAsync(10)
+                              .ExecuteAsync(async () =>
+                              {
+                                  return await originDb.KeyTimeToLiveAsync(key);
+                              });
+
+                        var resultNew = await Policy.Handle<RedisTimeoutException>()
+                             .RetryAsync(10)
+                             .ExecuteAsync(async () =>
+                             {
+                                 return await destinationDb.StringSetAsync(newKey, value, ttl, flags);
+                             });
+
+                        //Logger.LogLineWithLevel("INFO", "Origin Key: {0} \t Destination Key {1} \t Result: {2}", key, newKey, resultNew);
 
                         if (resultNew)
                         {
@@ -125,7 +139,9 @@ namespace RedisMigrate
                         }
 
                     });
-                } 
+
+                    Logger.LogLineWithLevel("INFO", $"Migrating: {items.Count()}");
+                }
                 while (cursor != 0);
 
                 stopwatch.Stop();

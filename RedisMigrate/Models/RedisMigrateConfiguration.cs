@@ -63,13 +63,13 @@ namespace RedisMigrate.Models
         {
             return new RedisMigrateConfiguration
             {
-                MaxThreads = 1000,
+                MaxThreads = 5000,
                 OriginConnectionString = "localhost:6379,password=RedisAuth,defaultDatabase=0,syncTimeout=2000,connectTimeout=2000,abortConnect=false",
                 OriginDatabase = 0,
                 OriginFilter = "*",
                 OriginPopulateEnabled = true,
-                OriginPopulateQuantity = 100,
-                OriginPopulatePrefix = "redlosck:",
+                OriginPopulateQuantity = 1000000,
+                OriginPopulatePrefix = "redlock:",
                 DestinationConnectionString = "localhost:6377,password=RedisAuth,defaultDatabase=0,syncTimeout=2000,connectTimeout=2000,abortConnect=false",
                 DestinationDatabase = 0,
                 DestinationKeyPrefix = "migrated:",
