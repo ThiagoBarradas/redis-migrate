@@ -17,7 +17,7 @@ namespace RedisMigrate
 
                 var processor = new RedisMigrateProcessor(config);
 
-                processor.ExecuteAsync();
+                processor.Execute();
 
                 processor.Dispose();
             }
