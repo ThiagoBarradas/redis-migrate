@@ -27,7 +27,7 @@ namespace RedisMigrate
             ThreadPool.SetMinThreads(this.Configuration.MaxThreads, this.Configuration.MaxThreads);
         }
 
-        public async Task ExecuteAsync()
+        public void Execute()
         {
             try
             {
@@ -56,13 +56,12 @@ namespace RedisMigrate
 
                         Logger.LogLineWithLevel("INFO", $"Writing bulk test data - {buffer.Count}/{this.Configuration.OriginPopulateQuantity}");
 
-                        await Policy
+                        Policy
                             .Handle<RedisTimeoutException>()
-                            .RetryAsync(10, (err, i) => Task.Delay(50))
-                            .ExecuteAsync(async () =>
+                            .Retry(10, (err, i) => Task.Delay(50))
+                            .Execute(() =>
                             {
-                                await originDb.StringSetAsync(buffer.ToArray(), When.Always);
-                                return Task.CompletedTask;
+                                originDb.StringSet(buffer.ToArray(), When.Always);
                             });
                     }
 
@@ -77,11 +76,12 @@ namespace RedisMigrate
                 stopwatch.Start();
                 do
                 {
-                    RedisResult result = await Policy.Handle<RedisTimeoutException>()
-                          .RetryAsync(10)
-                          .ExecuteAsync<RedisResult>(async () =>
+                    RedisResult result = null;
+                    Policy.Handle<RedisTimeoutException>()
+                          .Retry(10)
+                          .Execute(() =>
                           {
-                              return await originDb.ExecuteAsync("scan", cursor, "MATCH", this.Configuration.OriginFilter, "COUNT", this.Configuration.MaxThreads);
+                              result = originDb.Execute("scan", cursor, "MATCH", this.Configuration.OriginFilter, "COUNT", this.Configuration.MaxThreads);
                           });
 
                     var results = (RedisResult[])result;
@@ -106,30 +106,22 @@ namespace RedisMigrate
                             ? When.Always
                             : When.NotExists;
 
-                        var value = await Policy.Handle<RedisTimeoutException>()
-                              .RetryAsync(10)
-                              .ExecuteAsync<string>(async () =>
-                              {
-                                  return await originDb.StringGetAsync(key);
-                              });
+                        var value = "";
+                        TimeSpan? ttl = null;
+                        var newResult = false;
 
-                        var ttl = await Policy.Handle<RedisTimeoutException>()
-                              .RetryAsync(10)
-                              .ExecuteAsync(async () =>
+                        Policy.Handle<RedisTimeoutException>()
+                              .Retry(10)
+                              .Execute(() =>
                               {
-                                  return await originDb.KeyTimeToLiveAsync(key);
+                                  ttl = originDb.KeyTimeToLive(key);
+                                  value = originDb.StringGet(key);
+                                  newResult = destinationDb.StringSet(newKey, value, ttl, flags);
                               });
-
-                        var resultNew = await Policy.Handle<RedisTimeoutException>()
-                             .RetryAsync(10)
-                             .ExecuteAsync(async () =>
-                             {
-                                 return await destinationDb.StringSetAsync(newKey, value, ttl, flags);
-                             });
 
                         //Logger.LogLineWithLevel("INFO", "Origin Key: {0} \t Destination Key {1} \t Result: {2}", key, newKey, resultNew);
 
-                        if (resultNew)
+                        if (newResult)
                         {
                             Interlocked.Increment(ref processed_success);
                         }
